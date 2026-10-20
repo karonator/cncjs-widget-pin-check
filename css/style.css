@@ -1,0 +1,184 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  /* cncjs sizes the iframe to the content; never show a scrollbar for sub-pixel leftovers */
+  overflow: hidden;
+  background: #fff;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  color: #333;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.widget {
+  padding: 10px;
+}
+
+.indicators {
+  display: flex;
+  justify-content: space-around;
+  padding: 6px 0;
+}
+
+.indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.led-wrap {
+  position: relative;
+}
+
+.led {
+  --lens: radial-gradient(circle at 50% 45%, #e4e6e8 0%, #b4b9be 60%, #8f959b 100%);
+  --glow: 0 0 0 transparent;
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  /* bezel */
+  background: linear-gradient(180deg, #fdfdfd, #c9cdd1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .3), var(--glow);
+  transition: box-shadow .2s ease;
+}
+
+/* lens */
+.led::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--lens);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .35);
+}
+
+/* highlight */
+.led::after {
+  content: '';
+  position: absolute;
+  top: 7px;
+  left: 10px;
+  width: 14px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, .85), rgba(255, 255, 255, 0) 70%);
+}
+
+.led.off {
+  --lens: radial-gradient(circle at 50% 45%, #ff6b5e 0%, #e53935 55%, #b71c1c 100%);
+  --glow: 0 0 8px rgba(229, 57, 53, .45);
+}
+
+.led.on {
+  --lens: radial-gradient(circle at 50% 45%, #7dffb0 0%, #34c759 55%, #1b7f3a 100%);
+  --glow: 0 0 14px 2px rgba(52, 199, 89, .65);
+}
+
+.check {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  line-height: 16px;
+  border-radius: 50%;
+  border: 1px solid #fff;
+  background: #2e7d32;
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+}
+
+.label {
+  margin-top: 6px;
+  font-weight: bold;
+}
+
+/* status bar under the indicators: the hint when idle, the progress when connected */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  min-height: 32px;
+  margin-top: 10px;
+  padding: 5px 5px 5px 10px;
+  border-radius: 6px;
+  background: #f3f4f6;
+}
+
+.hint {
+  gap: 8px;
+  padding-right: 10px;
+  color: #888;
+}
+
+.hint svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+.summary {
+  transition: background-color .2s ease;
+}
+
+.summary.ok {
+  background: #e6f6ea;
+}
+
+.segments {
+  display: flex;
+  gap: 3px;
+}
+
+.segments span {
+  width: 14px;
+  height: 6px;
+  border-radius: 3px;
+  background: #d4d8dc;
+  transition: background-color .2s ease;
+}
+
+.segments span.done {
+  background: #34c759;
+}
+
+.progress {
+  flex: 1;
+  color: #555;
+}
+
+.summary.ok .progress {
+  color: #1b7f3a;
+  font-weight: bold;
+}
+
+.btn-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #666;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn-reset:hover {
+  background: rgba(0, 0, 0, .06);
+  color: #333;
+}
+
+.btn-reset svg {
+  width: 12px;
+  height: 12px;
+}

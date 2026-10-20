@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pin Check</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="widget">
+  <div class="indicators">
+    <div class="indicator"><div class="led-wrap"><div class="led" data-pin="X"></div><span class="check" data-pin="X" hidden>&#10003;</span></div><div class="label">X</div></div>
+    <div class="indicator"><div class="led-wrap"><div class="led" data-pin="Y"></div><span class="check" data-pin="Y" hidden>&#10003;</span></div><div class="label">Y</div></div>
+    <div class="indicator"><div class="led-wrap"><div class="led" data-pin="Z"></div><span class="check" data-pin="Z" hidden>&#10003;</span></div><div class="label">Z</div></div>
+    <div class="indicator"><div class="led-wrap"><div class="led" data-pin="P"></div><span class="check" data-pin="P" hidden>&#10003;</span></div><div class="label">Probe</div></div>
+  </div>
+  <div class="bar hint" id="hint">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M6 1.5v3M10 1.5v3"/><path d="M4 4.5h8v3a4 4 0 0 1-8 0z"/><path d="M8 11.5v3"/>
+    </svg>
+    <span>Connect to a Grbl controller to start.</span>
+  </div>
+  <div class="bar summary" id="summary" hidden>
+    <div class="segments" aria-hidden="true">
+      <span data-pin="X"></span><span data-pin="Y"></span><span data-pin="Z"></span><span data-pin="P"></span>
+    </div>
+    <span class="progress" id="progress"></span>
+    <button type="button" class="btn-reset" id="reset" title="Clear the check marks and start over">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M2.5 8a5.5 5.5 0 1 0 1.6-3.9"/><path d="M2.5 1.5v3h3"/>
+      </svg>
+      Reset
+    </button>
+  </div>
+</div>
+
+<!-- Served by the cncjs server itself, so the client always matches its socket.io version -->
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/pincheck.js"></script>
+</body>
+</html>
