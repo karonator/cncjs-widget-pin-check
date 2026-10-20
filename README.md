@@ -23,19 +23,23 @@ state (fixed in [cncjs#1013](https://github.com/cncjs/cncjs/pull/1013)), so the 
 
 ## Install
 
-1. Copy this folder to the machine running cncjs, e.g. `~/cncjs-pincheck-widget`.
+1. On the machine running cncjs:
+
+   ```
+   git clone https://github.com/karonator/cncjs-widget-pin-check.git ~/cncjs-widget-pin-check
+   ```
 
 2. Mount it into cncjs — either on the command line:
 
    ```
-   cncjs --mount /widget/pincheck:~/cncjs-pincheck-widget
+   cncjs --mount /widget/pincheck:~/cncjs-widget-pin-check
    ```
 
    or permanently in `~/.cncrc`:
 
    ```json
    "mountPoints": [
-     { "route": "/widget/pincheck", "target": "/home/pi/cncjs-pincheck-widget" }
+     { "route": "/widget/pincheck", "target": "/home/pi/cncjs-widget-pin-check" }
    ]
    ```
 
@@ -46,6 +50,9 @@ state (fixed in [cncjs#1013](https://github.com/cncjs/cncjs/pull/1013)), so the 
 
 4. In the Custom Widget click the **gear icon (Edit)**, set the URL to
    `/widget/pincheck/` and, optionally, the title to `Pin Check`.
+
+5. Turn the widget on with the **toggle** in its header — a new Custom
+   Widget starts disabled.
 
 ## Pre-run check
 
@@ -84,7 +91,8 @@ python3 tools/fake_grbl.py          # keys: x y z p toggle a pin, c clear, q qui
 python3 tools/fake_grbl.py --demo   # cycles the pins by itself
 ```
 
-It creates `~/fake-grbl-tty`. cncjs does not list virtual ports, so add it to
+It creates `~/fake-grbl-tty` (another path with `--link PATH`, e.g. to run two
+emulators side by side). cncjs does not list virtual ports, so add it to
 `~/.cncrc` (use your own home path) and restart cncjs:
 
 ```json

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fake Grbl 1.1 on a virtual serial port, for testing cncjs without a machine.
 
-Creates a pty and symlinks it to ~/fake-grbl-tty, then answers like Grbl:
+Creates a pty and symlinks it to ~/fake-grbl-tty (see --link), then answers like Grbl:
 startup banner, `ok` for lines, `$$`/`$I`/`$G`, and `<...|Pn:...>` status
 reports for the `?` real-time query.
 
@@ -10,7 +10,8 @@ Keys (when run in a terminal):
     c         clear all pins
     q         quit
 
-    --demo    instead of keys, cycle X -> Y -> Z -> P -> all -> none every second
+    --demo         instead of keys, cycle X -> Y -> Z -> P -> all -> none every second
+    --link PATH    symlink to create instead of ~/fake-grbl-tty
 """
 import argparse
 import os
@@ -21,7 +22,7 @@ import termios
 import time
 import tty
 
-LINK = os.path.expanduser('~/fake-grbl-tty')
+DEFAULT_LINK = '~/fake-grbl-tty'
 PIN_ORDER = 'XYZPDHRS'  # order Grbl prints Pn: letters in
 BANNER = b"\r\nGrbl 1.1h ['$' for help]\r\n"
 SETTINGS = [
@@ -113,23 +114,30 @@ def log(msg):
     sys.stdout.flush()
 
 
+def handle_sigterm(signum, frame):
+    # Treat `kill` like Ctrl+C so the symlink gets cleaned up
+    raise KeyboardInterrupt
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('--demo', action='store_true', help='cycle pins automatically')
+    parser.add_argument('--link', default=DEFAULT_LINK,
+                        help=f'symlink to the virtual port (default: {DEFAULT_LINK})')
     args = parser.parse_args()
+    link = os.path.expanduser(args.link)
 
-    # Treat `kill` like Ctrl+C so the symlink gets cleaned up
-    signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt))
+    signal.signal(signal.SIGTERM, handle_sigterm)
 
     master, slave = os.openpty()
     tty.setraw(slave)  # no echo / line discipline, like a real UART
-    if os.path.lexists(LINK):
-        os.remove(LINK)
-    os.symlink(os.ttyname(slave), LINK)
+    if os.path.lexists(link):
+        os.remove(link)
+    os.symlink(os.ttyname(slave), link)
     # Keep `slave` open so the pty survives cncjs closing and reopening it
 
     grbl = FakeGrbl(master)
-    log(f'Fake Grbl on {LINK} -> {os.ttyname(slave)}')
+    log(f'Fake Grbl on {link} -> {os.ttyname(slave)}')
 
     interactive = not args.demo and sys.stdin.isatty()
     old_attrs = None
@@ -157,21 +165,23 @@ def main():
                 except OSError:
                     pass
             if interactive and sys.stdin in ready:
-                key = sys.stdin.read(1).lower()
-                if key == 'q':
+                # Read the fd directly: sys.stdin's own buffer would hide keys from select()
+                keys = os.read(sys.stdin.fileno(), 32).decode(errors='ignore').lower()
+                if 'q' in keys:
                     break
-                if key == 'c':
-                    grbl.set_pins('')
-                elif key in ('x', 'y', 'z', 'p'):
-                    grbl.toggle(key.upper())
+                for key in keys:
+                    if key == 'c':
+                        grbl.set_pins('')
+                    elif key in ('x', 'y', 'z', 'p'):
+                        grbl.toggle(key.upper())
     except KeyboardInterrupt:
         pass
     finally:
         if old_attrs:
             termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_attrs)
         # Another instance may have taken the link over since; leave theirs alone
-        if os.path.islink(LINK) and os.readlink(LINK) == os.ttyname(slave):
-            os.remove(LINK)
+        if os.path.islink(link) and os.readlink(link) == os.ttyname(slave):
+            os.remove(link)
 
 
 if __name__ == '__main__':
